@@ -159,6 +159,43 @@ describe('lead', function() {
     });
   });
 
+  it('does not sink the stream if an event handler still exists when one is removed', function(done) {
+    var expectedCount = 17;
+    var highwatermarkObjs = [];
+    for (var idx = 0; idx < expectedCount; idx++) {
+      highwatermarkObjs.push({});
+    }
+
+    var write = sink(through.obj());
+
+    write.on('readable', noop);
+    var readables = 0;
+    write.on('readable', function() {
+      var data = write.read();
+
+      if (data != null) {
+        readables++;
+      }
+    });
+
+    function assert(err) {
+      expect(readables).toEqual(expectedCount);
+      done(err);
+    }
+
+    pipe([
+      from.obj(highwatermarkObjs),
+      count(expectedCount),
+      // Must be in the Writable position to test this
+      // So concat-stream cannot be used
+      write,
+    ], assert);
+
+    process.nextTick(function() {
+      write.removeListener('readable', noop);
+    });
+  });
+
   it('sinks the stream if all the data event handlers are removed', function(done) {
     var expectedCount = 17;
     var highwatermarkObjs = [];
