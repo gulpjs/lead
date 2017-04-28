@@ -13,10 +13,26 @@ Sink your streams.
 ## Usage
 
 ```js
+var from = require('from2');
+var through = require('through2');
+var sink = require('lead');
 
+// Might be used as a Transform or Writeable
+var maybeThrough = through(function(chunk, enc, cb) {
+  // processing
+  cb(null, chunk);
+});
+
+from(['hello', 'world'])
+  // Sink it to behave like a Writeable
+  .pipe(sink(maybeThrough))
 ```
 
 ## API
+
+### `sink(stream)`
+
+Takes a `stream` to sink and returns the same stream. Sets up event listeners to infer if the stream is being used as a `Transform` or `Writeable` stream and sinks it on `nextTick` if necessary. If the stream is being used as a `Transform` stream but becomes unpiped, it will be sunk. Respects `pipe`, `on('data')` and `on('readable')` handlers.
 
 ## License
 
