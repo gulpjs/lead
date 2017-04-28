@@ -24,6 +24,7 @@
     "coveralls": "npm run cover && istanbul-coveralls"
   },
   "dependencies": {
+    "flush-write-stream": "^1.0.2"
   },
   "devDependencies": {
     "eslint": "^1.10.3",
