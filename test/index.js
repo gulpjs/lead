@@ -44,7 +44,7 @@ describe('lead', function() {
 
     function assert(err) {
       // Forced an object through a non-object stream
-      expect(err).toExist();
+      expect(err).toBeTruthy();
       done();
     }
 
@@ -98,9 +98,7 @@ describe('lead', function() {
 
     var readables = 0;
     write.on('readable', function() {
-      var data = write.read();
-
-      if (data != null) {
+      while (write.read()) {
         readables++;
       }
     });
@@ -171,9 +169,7 @@ describe('lead', function() {
     write.on('readable', noop);
     var readables = 0;
     write.on('readable', function() {
-      var data = write.read();
-
-      if (data != null) {
+      while (write.read()) {
         readables++;
       }
     });
