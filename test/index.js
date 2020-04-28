@@ -44,7 +44,47 @@ function slowCount(value) {
 }
 
 describe('lead', function () {
-  it('respects objectMode of wrapped stream', function (done) {
+  it('can wrap binary stream', function (done) {
+    var write = sink(through());
+
+    function assert(err) {
+      // Forced an object through a non-object stream
+      expect(err).toBeFalsy();
+      done();
+    }
+
+    pipe(
+      [
+        from(['1', '2', '3']),
+        // Must be in the Writable position to test this
+        // So concat-stream cannot be used
+        write,
+      ],
+      assert
+    );
+  });
+
+  it('can wrap object stream', function (done) {
+    var write = sink(through.obj());
+
+    function assert(err) {
+      // Forced an object through a non-object stream
+      expect(err).toBeFalsy();
+      done();
+    }
+
+    pipe(
+      [
+        from.obj([{}, {}, {}]),
+        // Must be in the Writable position to test this
+        // So concat-stream cannot be used
+        write,
+      ],
+      assert
+    );
+  });
+
+  it('does not convert between object and binary stream', function (done) {
     var write = sink(through());
 
     function assert(err) {
@@ -55,7 +95,7 @@ describe('lead', function () {
 
     pipe(
       [
-        from.obj([{}]),
+        from.obj([{}, {}, {}]),
         // Must be in the Writable position to test this
         // So concat-stream cannot be used
         write,

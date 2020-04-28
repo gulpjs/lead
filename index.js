@@ -1,6 +1,6 @@
 'use strict';
 
-var Writable = require('flush-write-stream');
+var Writable = require('streamx').Writable;
 
 function listenerCount(stream, evt) {
   return stream.listeners(evt).length;
@@ -10,18 +10,10 @@ function hasListeners(stream) {
   return !!(listenerCount(stream, 'readable') || listenerCount(stream, 'data'));
 }
 
-function sinker(file, enc, callback) {
-  callback();
-}
-
 function sink(stream) {
   var sinkAdded = false;
 
-  var sinkOptions = {
-    objectMode: stream._readableState.objectMode,
-  };
-
-  var sinkStream = new Writable(sinkOptions, sinker);
+  var sinkStream = new Writable();
 
   function addSink() {
     if (sinkAdded) {
