@@ -18,14 +18,14 @@ var through = require('through2');
 var sink = require('lead');
 
 // Might be used as a Transform or Writeable
-var maybeThrough = through(function(chunk, enc, cb) {
+var maybeThrough = through(function (chunk, enc, cb) {
   // processing
   cb(null, chunk);
 });
 
 from(['hello', 'world'])
   // Sink it to behave like a Writeable
-  .pipe(sink(maybeThrough))
+  .pipe(sink(maybeThrough));
 ```
 
 ## API
