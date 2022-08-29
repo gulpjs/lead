@@ -20,6 +20,12 @@ function sink(stream) {
       return;
     }
 
+    // This is a streamx implementation detail
+    // TODO: Mabye upstream as `isActive`?
+    if (stream._readableState.pipeTo) {
+      return;
+    }
+
     sinkAdded = true;
     stream.pipe(sinkStream);
   }
