@@ -2,12 +2,8 @@
 
 var Writable = require('streamx').Writable;
 
-function listenerCount(stream, evt) {
-  return stream.listeners(evt).length;
-}
-
 function hasListeners(stream) {
-  return !!(listenerCount(stream, 'readable') || listenerCount(stream, 'data'));
+  return !!(stream.listenerCount('readable') || stream.listenerCount('data'));
 }
 
 function sink(stream) {
