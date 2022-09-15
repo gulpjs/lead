@@ -1,15 +1,11 @@
 'use strict';
 
-var Writable = require('streamx').Writable;
-
 function hasListeners(stream) {
   return !!(stream.listenerCount('readable') || stream.listenerCount('data'));
 }
 
 function sink(stream) {
   var sinkAdded = false;
-
-  var sinkStream = new Writable();
 
   function addSink() {
     if (sinkAdded) {
@@ -27,7 +23,7 @@ function sink(stream) {
     }
 
     sinkAdded = true;
-    stream.pipe(sinkStream);
+    stream.resume();
   }
 
   function removeSink(evt) {
@@ -37,7 +33,6 @@ function sink(stream) {
 
     if (hasListeners(stream)) {
       sinkAdded = false;
-      stream.unpipe(sinkStream);
     }
   }
 
