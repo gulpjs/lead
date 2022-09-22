@@ -13,17 +13,18 @@ Sink your streams.
 ## Usage
 
 ```js
-var from = require('from2');
-var through = require('through2');
+var { Readable, Transform } = require('streamx');
 var sink = require('lead');
 
 // Might be used as a Transform or Writeable
-var maybeThrough = through(function (chunk, enc, cb) {
-  // processing
-  cb(null, chunk);
+var maybeThrough = new Transform({
+  transform(chunk, cb) {
+    // processing
+    cb(null, chunk);
+  },
 });
 
-from(['hello', 'world'])
+Readable.from(['hello', 'world'])
   // Sink it to behave like a Writeable
   .pipe(sink(maybeThrough));
 ```

@@ -1,19 +1,11 @@
 'use strict';
 
-var Writable = require('streamx').Writable;
-
-function listenerCount(stream, evt) {
-  return stream.listeners(evt).length;
-}
-
 function hasListeners(stream) {
-  return !!(listenerCount(stream, 'readable') || listenerCount(stream, 'data'));
+  return !!(stream.listenerCount('readable') || stream.listenerCount('data'));
 }
 
 function sink(stream) {
   var sinkAdded = false;
-
-  var sinkStream = new Writable();
 
   function addSink() {
     if (sinkAdded) {
@@ -25,7 +17,7 @@ function sink(stream) {
     }
 
     sinkAdded = true;
-    stream.pipe(sinkStream);
+    stream.resume();
   }
 
   function removeSink(evt) {
@@ -35,13 +27,18 @@ function sink(stream) {
 
     if (hasListeners(stream)) {
       sinkAdded = false;
-      stream.unpipe(sinkStream);
     }
+
+    process.nextTick(addSink);
+  }
+
+  function markSink() {
+    sinkAdded = true;
   }
 
   stream.on('newListener', removeSink);
   stream.on('removeListener', removeSink);
-  stream.on('removeListener', addSink);
+  stream.on('piping', markSink);
 
   // Sink the stream to start flowing
   // Do this on nextTick, it will flow at slowest speed of piped streams
