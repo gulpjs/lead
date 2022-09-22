@@ -34,11 +34,12 @@ function sink(stream) {
     if (hasListeners(stream)) {
       sinkAdded = false;
     }
+
+    process.nextTick(addSink);
   }
 
   stream.on('newListener', removeSink);
   stream.on('removeListener', removeSink);
-  stream.on('removeListener', addSink);
 
   // Sink the stream to start flowing
   // Do this on nextTick, it will flow at slowest speed of piped streams
