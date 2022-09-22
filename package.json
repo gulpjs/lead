@@ -21,9 +21,7 @@
     "pretest": "npm run lint",
     "test": "nyc mocha --async-only"
   },
-  "dependencies": {
-    "streamx": "^2.12.0"
-  },
+  "dependencies": {},
   "devDependencies": {
     "eslint": "^7.32.0",
     "eslint-config-gulp": "^5.0.1",
@@ -31,7 +29,8 @@
     "expect": "^27.4.2",
     "mocha": "^8.4.0",
     "nyc": "^15.1.0",
-    "readable-stream": "^3.6.0"
+    "readable-stream": "^3.6.0",
+    "streamx": "^2.12.0"
   },
   "nyc": {
     "reporter": [
