@@ -16,12 +16,6 @@ function sink(stream) {
       return;
     }
 
-    // This is a streamx implementation detail
-    // TODO: Mabye upstream as `isActive`?
-    if (stream._readableState.pipeTo) {
-      return;
-    }
-
     sinkAdded = true;
     stream.resume();
   }
@@ -38,8 +32,13 @@ function sink(stream) {
     process.nextTick(addSink);
   }
 
+  function markSink() {
+    sinkAdded = true;
+  }
+
   stream.on('newListener', removeSink);
   stream.on('removeListener', removeSink);
+  stream.on('piping', markSink);
 
   // Sink the stream to start flowing
   // Do this on nextTick, it will flow at slowest speed of piped streams
