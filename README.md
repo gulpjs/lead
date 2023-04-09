@@ -45,7 +45,7 @@ MIT
 [npm-image]: https://img.shields.io/npm/v/lead.svg?style=flat-square
 
 [ci-url]: https://github.com/gulpjs/lead/actions?query=workflow:dev
-[ci-image]: https://img.shields.io/github/workflow/status/gulpjs/lead/dev?style=flat-square
+[ci-image]: https://img.shields.io/github/actions/workflow/status/gulpjs/lead/dev.yml?branch=master&style=flat-square
 
 [coveralls-url]: https://coveralls.io/r/gulpjs/lead
 [coveralls-image]: https://img.shields.io/coveralls/gulpjs/lead/master.svg?style=flat-square
