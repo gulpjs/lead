@@ -1,14 +1,14 @@
-'use strict';
+"use strict";
 
-var expect = require('expect');
+var expect = require("expect");
 
-var sink = require('../');
+var sink = require("../");
 
 function noop() {}
 
-suite('stream');
-suite('streamx');
-suite('readable-stream');
+suite("stream");
+suite("streamx");
+suite("readable-stream");
 
 function suite(moduleName) {
   var stream = require(moduleName);
@@ -18,7 +18,7 @@ function suite(moduleName) {
     return new stream.Transform({
       objectMode: true,
       transform: function (file, enc, cb) {
-        if (typeof enc === 'function') {
+        if (typeof enc === "function") {
           cb = enc;
         }
 
@@ -37,7 +37,7 @@ function suite(moduleName) {
     return new stream.Writable({
       objectMode: true,
       write: function (file, enc, cb) {
-        if (typeof enc === 'function') {
+        if (typeof enc === "function") {
           cb = enc;
         }
 
@@ -53,8 +53,8 @@ function suite(moduleName) {
       },
     });
   }
-  describe('lead (' + moduleName + ')', function () {
-    it('can wrap binary stream', function (done) {
+  describe("lead (" + moduleName + ")", function () {
+    it("can wrap binary stream", function (done) {
       var write = sink(new stream.PassThrough());
 
       function assert(err) {
@@ -63,10 +63,10 @@ function suite(moduleName) {
         done();
       }
 
-      stream.pipeline([stream.Readable.from(['1', '2', '3']), write], assert);
+      stream.pipeline([stream.Readable.from(["1", "2", "3"]), write], assert);
     });
 
-    it('can wrap object stream', function (done) {
+    it("can wrap object stream", function (done) {
       var write = sink(new stream.PassThrough({ objectMode: true }));
 
       function assert(err) {
@@ -78,14 +78,14 @@ function suite(moduleName) {
       stream.pipeline([stream.Readable.from([{}, {}, {}]), write], assert);
     });
 
-    if (moduleName !== 'streamx') {
+    if (moduleName !== "streamx") {
       // TODO: Remove this test when we drop node <15
-      it('does not convert between object and binary stream', function (done) {
+      it("does not convert between object and binary stream", function (done) {
         // Node core made a terrible decision in https://github.com/nodejs/node/pull/31831
         // and decided to start throwing on invalid encoding types, so we skip this test
         if (
-          process.version.startsWith('v14') ||
-          process.version.startsWith('v16')
+          process.version.startsWith("v14") ||
+          process.version.startsWith("v16")
         ) {
           this.skip();
           return;
@@ -103,7 +103,7 @@ function suite(moduleName) {
       });
     } else {
       // Streamx does automatic conversion between object and binary streams
-      it('converts between object and binary stream', function (done) {
+      it("converts between object and binary stream", function (done) {
         var write = sink(new stream.PassThrough());
 
         function assert(err) {
@@ -118,12 +118,12 @@ function suite(moduleName) {
             // So concat-stream cannot be used
             write,
           ],
-          assert
+          assert,
         );
       });
     }
 
-    it('does not get clogged by highWaterMark', function (done) {
+    it("does not get clogged by highWaterMark", function (done) {
       var expectedCount = 17;
       var highwatermarkObjs = [];
       for (var idx = 0; idx < expectedCount; idx++) {
@@ -134,11 +134,11 @@ function suite(moduleName) {
 
       stream.pipeline(
         [stream.Readable.from(highwatermarkObjs), count(expectedCount), write],
-        done
+        done,
       );
     });
 
-    it('allows backpressure when piped to another, slower stream', function (done) {
+    it("allows backpressure when piped to another, slower stream", function (done) {
       this.timeout(20000);
 
       var expectedCount = 24;
@@ -156,15 +156,15 @@ function suite(moduleName) {
           write,
           slowCount(expectedCount),
         ],
-        done
+        done,
       );
     });
 
-    it('respects readable listeners on wrapped stream', function (done) {
+    it("respects readable listeners on wrapped stream", function (done) {
       var write = sink(new stream.PassThrough({ objectMode: true }));
 
       var readables = 0;
-      write.on('readable', function () {
+      write.on("readable", function () {
         while (write.read()) {
           readables++;
         }
@@ -178,11 +178,11 @@ function suite(moduleName) {
       stream.pipeline([stream.Readable.from([{}]), write], assert);
     });
 
-    it('respects data listeners on wrapped stream', function (done) {
+    it("respects data listeners on wrapped stream", function (done) {
       var write = sink(new stream.PassThrough({ objectMode: true }));
 
       var datas = 0;
-      write.on('data', function () {
+      write.on("data", function () {
         datas++;
       });
 
@@ -194,7 +194,7 @@ function suite(moduleName) {
       stream.pipeline([stream.Readable.from([{}]), write], assert);
     });
 
-    it('sinks the stream if all the readable event handlers are removed', function (done) {
+    it("sinks the stream if all the readable event handlers are removed", function (done) {
       var expectedCount = 17;
       var highwatermarkObjs = [];
       for (var idx = 0; idx < expectedCount; idx++) {
@@ -203,19 +203,19 @@ function suite(moduleName) {
 
       var write = sink(new stream.PassThrough({ objectMode: true }));
 
-      write.on('readable', noop);
+      write.on("readable", noop);
 
       stream.pipeline(
         [stream.Readable.from(highwatermarkObjs), count(expectedCount), write],
-        done
+        done,
       );
 
       process.nextTick(function () {
-        write.removeListener('readable', noop);
+        write.removeListener("readable", noop);
       });
     });
 
-    it('does not sink the stream if an event handler still exists when one is removed', function (done) {
+    it("does not sink the stream if an event handler still exists when one is removed", function (done) {
       var expectedCount = 17;
       var highwatermarkObjs = [];
       for (var idx = 0; idx < expectedCount; idx++) {
@@ -224,9 +224,9 @@ function suite(moduleName) {
 
       var write = sink(new stream.PassThrough({ objectMode: true }));
 
-      write.on('readable', noop);
+      write.on("readable", noop);
       var readables = 0;
-      write.on('readable', function () {
+      write.on("readable", function () {
         while (write.read()) {
           readables++;
         }
@@ -239,15 +239,15 @@ function suite(moduleName) {
 
       stream.pipeline(
         [stream.Readable.from(highwatermarkObjs), count(expectedCount), write],
-        assert
+        assert,
       );
 
       process.nextTick(function () {
-        write.removeListener('readable', noop);
+        write.removeListener("readable", noop);
       });
     });
 
-    it('sinks the stream if all the data event handlers are removed', function (done) {
+    it("sinks the stream if all the data event handlers are removed", function (done) {
       var expectedCount = 17;
       var highwatermarkObjs = [];
       for (var idx = 0; idx < expectedCount; idx++) {
@@ -256,15 +256,15 @@ function suite(moduleName) {
 
       var write = sink(new stream.PassThrough({ objectMode: true }));
 
-      write.on('data', noop);
+      write.on("data", noop);
 
       stream.pipeline(
         [stream.Readable.from(highwatermarkObjs), count(expectedCount), write],
-        done
+        done,
       );
 
       process.nextTick(function () {
-        write.removeListener('data', noop);
+        write.removeListener("data", noop);
       });
     });
   });
