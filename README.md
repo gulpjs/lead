@@ -35,6 +35,16 @@ Readable.from(['hello', 'world'])
 
 Takes a `stream` to sink and returns the same stream. Sets up event listeners to infer if the stream is being used as a `Transform` or `Writeable` stream and sinks it on `nextTick` if necessary. If the stream is being used as a `Transform` stream but becomes unpiped, it will be sunk. Respects `pipe`, `on('data')` and `on('readable')` handlers.
 
+## Strict No LLM / No AI Policy
+
+No LLMs for issues.
+
+No LLMs for patches / pull requests.
+
+No LLMs for comments on the bug tracker, including translation.
+
+English is encouraged, but not required. You are welcome to post in your native language and rely on others to have their own translation tools of choice to interpret your words.
+
 ## License
 
 MIT
@@ -44,9 +54,9 @@ MIT
 [npm-url]: https://www.npmjs.com/package/lead
 [npm-image]: https://img.shields.io/npm/v/lead.svg?style=flat-square
 
-[ci-url]: https://github.com/gulpjs/lead/actions?query=workflow:dev
-[ci-image]: https://img.shields.io/github/actions/workflow/status/gulpjs/lead/dev.yml?branch=master&style=flat-square
+[ci-url]: https://github.com/gulpjs/lead/actions/workflows/dev.yml
+[ci-image]: https://img.shields.io/github/actions/workflow/status/gulpjs/lead/dev.yml?style=flat-square
 
 [coveralls-url]: https://coveralls.io/r/gulpjs/lead
-[coveralls-image]: https://img.shields.io/coveralls/gulpjs/lead/master.svg?style=flat-square
+[coveralls-image]: https://img.shields.io/coveralls/gulpjs/lead/main.svg?style=flat-square
 <!-- prettier-ignore-end -->
