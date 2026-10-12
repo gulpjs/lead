@@ -1,5 +1,16 @@
 # Changelog
 
+## [5.0.0](https://github.com/gulpjs/lead/compare/v4.0.0...v5.0.0) (2026-10-12)
+
+
+### ⚠ BREAKING CHANGES
+
+* Normalize repository, dropping Node <22.15.0 ([#12](https://github.com/gulpjs/lead/issues/12))
+
+### Miscellaneous Chores
+
+* Normalize repository, dropping Node &lt;22.15.0 ([#12](https://github.com/gulpjs/lead/issues/12)) ([761bf24](https://github.com/gulpjs/lead/commit/761bf2442e1be0fbd5fce0be13d1c44038307a2d))
+
 ## [4.0.0](https://www.github.com/gulpjs/lead/compare/v3.0.0...v4.0.0) (2022-09-22)
 
 
