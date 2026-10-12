@@ -78,30 +78,7 @@ function suite(moduleName) {
       stream.pipeline([stream.Readable.from([{}, {}, {}]), write], assert);
     });
 
-    if (moduleName !== "streamx") {
-      // TODO: Remove this test when we drop node <15
-      it("does not convert between object and binary stream", function (done) {
-        // Node core made a terrible decision in https://github.com/nodejs/node/pull/31831
-        // and decided to start throwing on invalid encoding types, so we skip this test
-        if (
-          process.version.startsWith("v14") ||
-          process.version.startsWith("v16")
-        ) {
-          this.skip();
-          return;
-        }
-
-        var write = sink(new stream.PassThrough());
-
-        function assert(err) {
-          // Forced an object through a non-object stream
-          expect(err).toBeTruthy();
-          done();
-        }
-
-        stream.pipeline([stream.Readable.from([{}, {}, {}]), write], assert);
-      });
-    } else {
+    if (moduleName === "streamx") {
       // Streamx does automatic conversion between object and binary streams
       it("converts between object and binary stream", function (done) {
         var write = sink(new stream.PassThrough());
