@@ -48,7 +48,7 @@ function suite(moduleName) {
           cb(null, file);
         }, 250);
       },
-      flush: function (cb) {
+      final: function (cb) {
         assert.strictEqual(count, value);
         cb();
       },
