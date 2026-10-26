@@ -1,6 +1,7 @@
 "use strict";
 
-var expect = require("expect");
+var assert = require("node:assert");
+var { describe, it } = require("node:test");
 
 var sink = require("../");
 
@@ -25,8 +26,9 @@ function suite(moduleName) {
         count++;
         cb(null, file);
       },
+      // Flush is used instead of final due to streamx implementing Transform differently causing a stall on final.
       flush: function (cb) {
-        expect(count).toEqual(value);
+        assert.strictEqual(count, value);
         cb();
       },
     });
@@ -47,44 +49,48 @@ function suite(moduleName) {
           cb(null, file);
         }, 250);
       },
-      flush: function (cb) {
-        expect(count).toEqual(value);
+      // Final is used instead of flush due to slowCount() being a Writable stream. flush is only called on Transform streams while final can be used on both.
+      final: function (cb) {
+        assert.strictEqual(count, value);
         cb();
       },
     });
   }
   describe("lead (" + moduleName + ")", function () {
-    it("can wrap binary stream", function (done) {
+    it("can wrap binary stream", function (t, done) {
       var write = sink(new stream.PassThrough());
 
-      function assert(err) {
+      function assertion(err) {
         // Forced an object through a non-object stream
-        expect(err).toBeFalsy();
+        assert.ok(!err);
         done();
       }
 
-      stream.pipeline([stream.Readable.from(["1", "2", "3"]), write], assert);
+      stream.pipeline(
+        [stream.Readable.from(["1", "2", "3"]), write],
+        assertion,
+      );
     });
 
-    it("can wrap object stream", function (done) {
+    it("can wrap object stream", function (t, done) {
       var write = sink(new stream.PassThrough({ objectMode: true }));
 
-      function assert(err) {
+      function assertion(err) {
         // Forced an object through a non-object stream
-        expect(err).toBeFalsy();
+        assert.ok(!err);
         done();
       }
 
-      stream.pipeline([stream.Readable.from([{}, {}, {}]), write], assert);
+      stream.pipeline([stream.Readable.from([{}, {}, {}]), write], assertion);
     });
 
     if (moduleName === "streamx") {
       // Streamx does automatic conversion between object and binary streams
-      it("converts between object and binary stream", function (done) {
+      it("converts between object and binary stream", function (t, done) {
         var write = sink(new stream.PassThrough());
 
-        function assert(err) {
-          expect(err).toBeFalsy();
+        function assertion(err) {
+          assert.ok(!err);
           done();
         }
 
@@ -95,12 +101,12 @@ function suite(moduleName) {
             // So concat-stream cannot be used
             write,
           ],
-          assert,
+          assertion,
         );
       });
     }
 
-    it("does not get clogged by highWaterMark", function (done) {
+    it("does not get clogged by highWaterMark", function (t, done) {
       var expectedCount = 17;
       var highwatermarkObjs = [];
       for (var idx = 0; idx < expectedCount; idx++) {
@@ -115,29 +121,31 @@ function suite(moduleName) {
       );
     });
 
-    it("allows backpressure when piped to another, slower stream", function (done) {
-      this.timeout(20000);
+    it(
+      "allows backpressure when piped to another, slower stream",
+      { timeout: 20000 },
+      function (t, done) {
+        var expectedCount = 24;
+        var highwatermarkObjs = [];
+        for (var idx = 0; idx < expectedCount; idx++) {
+          highwatermarkObjs.push({});
+        }
 
-      var expectedCount = 24;
-      var highwatermarkObjs = [];
-      for (var idx = 0; idx < expectedCount; idx++) {
-        highwatermarkObjs.push({});
-      }
+        var write = sink(new stream.PassThrough({ objectMode: true }));
 
-      var write = sink(new stream.PassThrough({ objectMode: true }));
+        stream.pipeline(
+          [
+            stream.Readable.from(highwatermarkObjs),
+            count(expectedCount),
+            write,
+            slowCount(expectedCount),
+          ],
+          done,
+        );
+      },
+    );
 
-      stream.pipeline(
-        [
-          stream.Readable.from(highwatermarkObjs),
-          count(expectedCount),
-          write,
-          slowCount(expectedCount),
-        ],
-        done,
-      );
-    });
-
-    it("respects readable listeners on wrapped stream", function (done) {
+    it("respects readable listeners on wrapped stream", function (t, done) {
       var write = sink(new stream.PassThrough({ objectMode: true }));
 
       var readables = 0;
@@ -147,15 +155,15 @@ function suite(moduleName) {
         }
       });
 
-      function assert(err) {
-        expect(readables).toEqual(1);
+      function assertion(err) {
+        assert.strictEqual(readables, 1);
         done(err);
       }
 
-      stream.pipeline([stream.Readable.from([{}]), write], assert);
+      stream.pipeline([stream.Readable.from([{}]), write], assertion);
     });
 
-    it("respects data listeners on wrapped stream", function (done) {
+    it("respects data listeners on wrapped stream", function (t, done) {
       var write = sink(new stream.PassThrough({ objectMode: true }));
 
       var datas = 0;
@@ -163,15 +171,15 @@ function suite(moduleName) {
         datas++;
       });
 
-      function assert(err) {
-        expect(datas).toEqual(1);
+      function assertion(err) {
+        assert.strictEqual(datas, 1);
         done(err);
       }
 
-      stream.pipeline([stream.Readable.from([{}]), write], assert);
+      stream.pipeline([stream.Readable.from([{}]), write], assertion);
     });
 
-    it("sinks the stream if all the readable event handlers are removed", function (done) {
+    it("sinks the stream if all the readable event handlers are removed", function (t, done) {
       var expectedCount = 17;
       var highwatermarkObjs = [];
       for (var idx = 0; idx < expectedCount; idx++) {
@@ -192,7 +200,7 @@ function suite(moduleName) {
       });
     });
 
-    it("does not sink the stream if an event handler still exists when one is removed", function (done) {
+    it("does not sink the stream if an event handler still exists when one is removed", function (t, done) {
       var expectedCount = 17;
       var highwatermarkObjs = [];
       for (var idx = 0; idx < expectedCount; idx++) {
@@ -209,14 +217,14 @@ function suite(moduleName) {
         }
       });
 
-      function assert(err) {
-        expect(readables).toEqual(expectedCount);
+      function assertion(err) {
+        assert.strictEqual(readables, expectedCount);
         done(err);
       }
 
       stream.pipeline(
         [stream.Readable.from(highwatermarkObjs), count(expectedCount), write],
-        assert,
+        assertion,
       );
 
       process.nextTick(function () {
@@ -224,7 +232,7 @@ function suite(moduleName) {
       });
     });
 
-    it("sinks the stream if all the data event handlers are removed", function (done) {
+    it("sinks the stream if all the data event handlers are removed", function (t, done) {
       var expectedCount = 17;
       var highwatermarkObjs = [];
       for (var idx = 0; idx < expectedCount; idx++) {
