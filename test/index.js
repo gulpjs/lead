@@ -27,7 +27,7 @@ function suite(moduleName) {
         cb(null, file);
       },
       flush: function (cb) {
-        assert.deepStrictEqual(count, value);
+        assert.strictEqual(count, value);
         cb();
       },
     });
@@ -49,7 +49,7 @@ function suite(moduleName) {
         }, 250);
       },
       flush: function (cb) {
-        assert.deepStrictEqual(count, value);
+        assert.strictEqual(count, value);
         cb();
       },
     });
@@ -58,19 +58,39 @@ function suite(moduleName) {
     it("can wrap binary stream", function (t, done) {
       var write = sink(new stream.PassThrough());
 
-      stream.pipeline([stream.Readable.from(["1", "2", "3"]), write], done);
+      function assertion(err) {
+        // Forced an object through a non-object stream
+        assert.ok(!err);
+        done();
+      }
+
+      stream.pipeline(
+        [stream.Readable.from(["1", "2", "3"]), write],
+        assertion,
+      );
     });
 
     it("can wrap object stream", function (t, done) {
       var write = sink(new stream.PassThrough({ objectMode: true }));
 
-      stream.pipeline([stream.Readable.from([{}, {}, {}]), write], done);
+      function assertion(err) {
+        // Forced an object through a non-object stream
+        assert.ok(!err);
+        done();
+      }
+
+      stream.pipeline([stream.Readable.from([{}, {}, {}]), write], assertion);
     });
 
     if (moduleName === "streamx") {
       // Streamx does automatic conversion between object and binary streams
       it("converts between object and binary stream", function (t, done) {
         var write = sink(new stream.PassThrough());
+
+        function assertion(err) {
+          assert.ok(!err);
+          done();
+        }
 
         stream.pipeline(
           [
@@ -79,7 +99,7 @@ function suite(moduleName) {
             // So concat-stream cannot be used
             write,
           ],
-          done,
+          assertion,
         );
       });
     }
@@ -133,7 +153,12 @@ function suite(moduleName) {
         }
       });
 
-      stream.pipeline([stream.Readable.from([{}]), write], done);
+      function assertion(err) {
+        assert.strictEqual(readables, 1);
+        done(err);
+      }
+
+      stream.pipeline([stream.Readable.from([{}]), write], assertion);
     });
 
     it("respects data listeners on wrapped stream", function (t, done) {
@@ -144,7 +169,12 @@ function suite(moduleName) {
         datas++;
       });
 
-      stream.pipeline([stream.Readable.from([{}]), write], done);
+      function assertion(err) {
+        assert.strictEqual(datas, 1);
+        done(err);
+      }
+
+      stream.pipeline([stream.Readable.from([{}]), write], assertion);
     });
 
     it("sinks the stream if all the readable event handlers are removed", function (t, done) {
@@ -185,9 +215,14 @@ function suite(moduleName) {
         }
       });
 
+      function assertion(err) {
+        assert.strictEqual(readables, expectedCount);
+        done(err);
+      }
+
       stream.pipeline(
         [stream.Readable.from(highwatermarkObjs), count(expectedCount), write],
-        done,
+        assertion,
       );
 
       process.nextTick(function () {
