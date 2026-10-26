@@ -26,7 +26,8 @@ function suite(moduleName) {
         count++;
         cb(null, file);
       },
-      final: function (cb) {
+      // Flush is used instead of final due to streamx implementing Transform differently causing a stall on final.
+      flush: function (cb) {
         assert.strictEqual(count, value);
         cb();
       },
