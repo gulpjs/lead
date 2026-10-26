@@ -26,7 +26,7 @@ function suite(moduleName) {
         count++;
         cb(null, file);
       },
-      flush: function (cb) {
+      final: function (cb) {
         assert.strictEqual(count, value);
         cb();
       },
@@ -48,6 +48,7 @@ function suite(moduleName) {
           cb(null, file);
         }, 250);
       },
+      // Final is used instead of flush due to slowCount() being a Writable stream. flush is only called on Transform streams while final can be used on both.
       final: function (cb) {
         assert.strictEqual(count, value);
         cb();
